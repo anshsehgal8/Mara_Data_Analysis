@@ -115,6 +115,28 @@ if __name__ == "__main__":
         dA = get_dataset(filename, 'cell_area')
         r  = get_dataset(filename, 'radius')
         cut = (r < 1.5) * (r > 0.5) # this cut should isolate the gap
-        ax1.hist(vx.flat, weights=(dA * cut).flat, bins=200, histtype='step')
+        
+
+        vrad = get_dataset(filename,'radial_velocity')
+        vphi = get_dataset(filename,'phi_velocity')
+        mass = get_dataset(filename,'mass')
+        L = r * vphi * mass
+        vsquared = vphi**2 + vrad**2
+        const = 1. #G * M
+        E = 0.5 * mass * vsquared - const * mass/r
+        #print L/(-E)
+        omega = np.sqrt(const/r**3)
+        ecc = np.sqrt(1 - (omega*L/(-2*E))**2)
+        #print ecc
+
+        nan_array = np.isnan(ecc)
+        not_nan_array =  ~ nan_array
+        filtering = ecc[not_nan_array]
+        ax1.hist(filtering,bins = 100, histtype='step')
+
+
+        #ax1.hist(vx.flat, weights=(dA * cut).flat, bins=200, histtype='step')
+
+
 
     plt.show()
