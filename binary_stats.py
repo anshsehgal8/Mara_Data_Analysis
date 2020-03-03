@@ -18,12 +18,12 @@ class HelperFunctions(object):
     """
     def cell_center_x_array(self, vertices):
         x = vertices[:,:,0]
-        xc = 0.5 * (x[:-1,:-1] + x[1:,:-1] + x[:-1,1:] + x[1:,1:])
+        xc = 0.25 * (x[:-1,:-1] + x[1:,:-1] + x[:-1,1:] + x[1:,1:])
         return xc
 
     def cell_center_y_array(self, vertices):
         y = vertices[:,:,1]
-        yc = 0.5 * (y[:-1,:-1] + y[1:,:-1] + y[:-1,1:] + y[1:,1:])
+        yc = 0.25 * (y[:-1,:-1] + y[1:,:-1] + y[:-1,1:] + y[1:,1:])
         return yc
 
     def area_array(self, vertices):
@@ -82,10 +82,18 @@ def get_dataset(fname, key):
 
     if key == 'mass':
         return get_dataset(fname, 'sigma') * get_dataset(fname, 'cell_area')
+
     if key == 'x_velocity':
-    	return get_dataset(fname, 'radial_velocity') * np.cos(get_dataset(fname,'phi')) - np.sin(get_dataset(fname,'phi')) * get_dataset(fname,'phi_velocity')
+        vr = get_dataset(fname, 'radial_velocity')
+        vp = get_dataset(fname, 'phi_velocity')
+        phi = get_dataset(fname,'phi')
+        return vr * np.cos(phi) - vp * np.sin(phi)
+
     if key == 'y_velocity':
-    	return get_dataset(fname, 'radial_velocity') * np.sin(get_dataset(fname,'phi')) + np.cos(get_dataset(fname,'phi')) * get_dataset(fname,'phi_velocity')
+        vr = get_dataset(fname, 'radial_velocity')
+        vp = get_dataset(fname, 'phi_velocity')
+        phi = get_dataset(fname,'phi')
+        return vr * np.sin(phi) + vp * np.cos(phi)
 
     raise KeyError('unknown dataset: ' + key)
 
@@ -93,49 +101,20 @@ def get_dataset(fname, key):
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs='+')
-    parser.add_argument("inclination", type=float)
-    parser.add_argument("varpi", type=float)
     args = parser.parse_args()
 
-    #print(get_dataset(args.filenames[0], 'sigma').shape)
-    #print(get_dataset(args.filenames[0], 'radius').shape)
-    #print(get_dataset(args.filenames[0], 'phi').shape)
-    radius = get_dataset(args.filenames[0],'radius')
-    mass   = get_dataset(args.filenames[0],'mass')
-    vphi   = get_dataset(args.filenames[0], 'phi_velocity')
-    vr     = get_dataset(args.filenames[0], 'radial_velocity')
-    area   = get_dataset(args.filenames[0], 'cell_area')
-
-    def line_of_sight_vector():
-    	ux = np.sin(args.inclination) * np.cos(args.varpi)
-    	uy = np.sin(args.inclination) * np.sin(args.varpi)
-    	uz = np.cos(args.inclination)
-    	return [ux,uy,uz]
-
-    
-
-    
-    
-
-    Vx = get_dataset(args.filenames[0],'x_velocity')
-    Vy = get_dataset(args.filenames[0],'y_velocity')
-    Vz = 0
-
-    #V = np.sqrt(Vx**2 + Vy**2)
-
-
-    vel_array = np.array([Vx,Vy,Vz])
-    #LOS = V * np.sin(1.05)
-    V = np.dot(line_of_sight_vector(),vel_array)
-    count,bins = np.histogram(V,weights=area,bins=1000)
     fig = plt.figure()
-    ax1 = fig.add_subplot(1,1,1)
-    ax1.plot(bins[:-1],count)
+    ax1 = fig.add_subplot(1, 1, 1)
 
-    #ax1.set_xlim(-0.4,0.4)
+    for filename in args.filenames:
+        domain_radius = h5py.File(filename, 'r')['run_config']['domain_radius'][()]
+        vx = get_dataset(filename, 'x_velocity')
+        dA = get_dataset(filename, 'cell_area')
+        r  = get_dataset(filename, 'radius')
+        cut = (r < 1.5) * (r > 0.5) # this cut should isolate the gap
+        ax1.hist(vx.flat, weights=(dA * cut).flat, bins=200, histtype='step')
+
     plt.show()
-
-    
-
