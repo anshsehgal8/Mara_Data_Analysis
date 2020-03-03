@@ -95,8 +95,8 @@ def get_dataset(fname, key):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs='+')
-    #parser.add_argument("inclination", type=float)
-    #parser.add_argument("varpi", type=float)
+    parser.add_argument("inclination", type=float)
+    parser.add_argument("varpi", type=float)
     args = parser.parse_args()
 
     #print(get_dataset(args.filenames[0], 'sigma').shape)
@@ -108,11 +108,11 @@ if __name__ == "__main__":
     vr     = get_dataset(args.filenames[0], 'radial_velocity')
     area   = get_dataset(args.filenames[0], 'cell_area')
 
-    #def line_of_sight_vector():
-    	#ux = np.sin(args.inclination) * np.cos(args.varpi)
-    	#uy = np.sin(args.inclination) * np.sin(args.varpi)
-    	#uz = np.cos(args.inclination)
-    	#return [ux,uy,uz]
+    def line_of_sight_vector():
+    	ux = np.sin(args.inclination) * np.cos(args.varpi)
+    	uy = np.sin(args.inclination) * np.sin(args.varpi)
+    	uz = np.cos(args.inclination)
+    	return [ux,uy,uz]
 
     
 
@@ -123,10 +123,12 @@ if __name__ == "__main__":
     Vy = get_dataset(args.filenames[0],'y_velocity')
     Vz = 0
 
+    #V = np.sqrt(Vx**2 + Vy**2)
+
 
     vel_array = np.array([Vx,Vy,Vz])
-    V = Vy * np.sin(1.05) * np.sin(get_dataset(args.filenames[0],'phi'))
-    #V = np.dot(line_of_sight_vector(),vel_array)
+    #LOS = V * np.sin(1.05)
+    V = np.dot(line_of_sight_vector(),vel_array)
     count,bins = np.histogram(V,weights=area,bins=1000)
     fig = plt.figure()
     ax1 = fig.add_subplot(1,1,1)
@@ -135,8 +137,5 @@ if __name__ == "__main__":
     #ax1.set_xlim(-0.4,0.4)
     plt.show()
 
-    #plt.figure()
-    #plt.scatter(radius,V,s=0.5)
-    #plt.show()
     
 
