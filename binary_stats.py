@@ -132,7 +132,7 @@ if __name__ == "__main__":
     ax1 = fig.add_subplot(1,1,1)
     ax1.plot(bins[:-1],count)
 
-    ax1.set_xlim(-0.4,0.4)
+    #ax1.set_xlim(-0.4,0.4)
     plt.show()
 
     #plt.figure()
