@@ -122,19 +122,19 @@ if __name__ == "__main__":
         om    = (GM / r**3)**0.5    # Keplerian orbital frequency of the gas parcel
         L     = r * vp              # specific angular momentum and energy of the gas parcel
         E     = 0.5 * (vp**2 + vr**2) - GM / r
-        one_minus_e_squared = (0.5 * om * L / E)**2
+        e_squared = 1.0 - (0.5 * om * L / E)**2
 
         ax1.hist(
-            one_minus_e_squared.flat,
+            e_squared.flat,
             weights=(dA * (r < domain_radius)).flat,
             bins=5000,
             density=True,
             histtype='step',
             label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
 
-    ax1.set_xlim(0.8, 1.1)
-    ax1.set_xlabel(r'$1 - e^2$')
-    ax1.set_ylabel(r'$P(1 - e^2)$')
+    ax1.set_xlim(-0.2, 1.2)
+    ax1.set_xlabel(r'$e^2$')
+    ax1.set_ylabel(r'$P(e^2)$')
     ax1.set_yscale('log')
     ax1.legend()
     plt.show()
