@@ -111,32 +111,30 @@ if __name__ == "__main__":
 
     for filename in args.filenames:
         domain_radius = h5py.File(filename, 'r')['run_config']['domain_radius'][()]
-        vx = get_dataset(filename, 'x_velocity')
-        dA = get_dataset(filename, 'cell_area')
-        r  = get_dataset(filename, 'radius')
-        cut = (r < 1.5) * (r > 0.5) # this cut should isolate the gap
-        
+        time          = h5py.File(filename, 'r')['time'][()]
 
-        vrad = get_dataset(filename,'radial_velocity')
-        vphi = get_dataset(filename,'phi_velocity')
-        mass = get_dataset(filename,'mass')
-        L = r * vphi * mass
-        vsquared = vphi**2 + vrad**2
-        const = 1. #G * M
-        E = 0.5 * mass * vsquared - const * mass/r
-        #print L/(-E)
-        omega = np.sqrt(const/r**3)
-        ecc = np.sqrt(1 - (omega*L/(-2*E))**2)
-        #print ecc
+        r     = get_dataset(filename, 'radius')
+        dA    = get_dataset(filename, 'cell_area')
+        vr    = get_dataset(filename, 'radial_velocity')
+        vp    = get_dataset(filename, 'phi_velocity')
 
-        nan_array = np.isnan(ecc)
-        not_nan_array =  ~ nan_array
-        filtering = ecc[not_nan_array]
-        ax1.hist(filtering,bins = 100, histtype='step')
+        GM    = 1.0                 # binary total mass
+        om    = (GM / r**3)**0.5    # Keplerian orbital frequency of the gas parcel
+        L     = r * vp              # specific angular momentum and energy of the gas parcel
+        E     = 0.5 * (vp**2 + vr**2) - GM / r
+        e_squared = 1.0 - (0.5 * om * L / E)**2
 
+        ax1.hist(
+            e_squared.flat,
+            weights=(dA * (r < domain_radius)).flat,
+            bins=5000,
+            density=True,
+            histtype='step',
+            label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
 
-        #ax1.hist(vx.flat, weights=(dA * cut).flat, bins=200, histtype='step')
-
-
-
+    ax1.set_xlim(-0.2, 1.2)
+    ax1.set_xlabel(r'$e^2$')
+    ax1.set_ylabel(r'$P(e^2)$')
+    ax1.set_yscale('log')
+    ax1.legend()
     plt.show()
