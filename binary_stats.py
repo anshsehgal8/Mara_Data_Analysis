@@ -117,6 +117,7 @@ if __name__ == "__main__":
         dA    = get_dataset(filename, 'cell_area')
         vr    = get_dataset(filename, 'radial_velocity')
         vp    = get_dataset(filename, 'phi_velocity')
+        vx    = get_dataset(filename, 'x_velocity')
 
         GM    = 1.0                 # binary total mass
         om    = (GM / r**3)**0.5    # Keplerian orbital frequency of the gas parcel
@@ -125,16 +126,17 @@ if __name__ == "__main__":
         e_squared = 1.0 - (0.5 * om * L / E)**2
 
         ax1.hist(
-            e_squared.flat,
+            vx.flat,
             weights=(dA * (r < domain_radius)).flat,
-            bins=5000,
+            bins=500,
             density=True,
             histtype='step',
             label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
+    
 
-    ax1.set_xlim(-0.2, 1.2)
-    ax1.set_xlabel(r'$e^2$')
-    ax1.set_ylabel(r'$P(e^2)$')
-    ax1.set_yscale('log')
-    ax1.legend()
+    #ax1.set_xlim(-0.2, 1.2)
+    #ax1.set_xlabel(r'$e^2$')
+    #ax1.set_ylabel(r'$P(e^2)$')
+    #ax1.set_yscale('log')
+    #ax1.legend()
     plt.show()
