@@ -118,6 +118,8 @@ if __name__ == "__main__":
         vr    = get_dataset(filename, 'radial_velocity')
         vp    = get_dataset(filename, 'phi_velocity')
         vx    = get_dataset(filename, 'x_velocity')
+        phi   = get_dataset(filename, 'phi')
+
 
         GM    = 1.0                 # binary total mass
         om    = (GM / r**3)**0.5    # Keplerian orbital frequency of the gas parcel
@@ -125,10 +127,18 @@ if __name__ == "__main__":
         E     = 0.5 * (vp**2 + vr**2) - GM / r
         e_squared = 1.0 - (0.5 * om * L / E)**2
 
+
+        #ECCENTRICITY CALCULATION MM08
+        m = 1
+        top = np.sum(vr * np.exp(1j * m * phi))
+        bottom = np.sum(vp)
+        e_m = np.absolute(top/bottom)
+        print e_m
+
         ax1.hist(
             vx.flat,
-            weights=(dA * (r < domain_radius)).flat,
-            bins=500,
+            weights=(dA * (r < 3) * (r > 2)).flat,
+            bins=100,
             density=True,
             histtype='step',
             label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
