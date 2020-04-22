@@ -119,6 +119,7 @@ if __name__ == "__main__":
         vp    = get_dataset(filename, 'phi_velocity')
         vx    = get_dataset(filename, 'x_velocity')
         phi   = get_dataset(filename, 'phi')
+        sigma = get_dataset(filename, 'sigma')
 
 
         GM    = 1.0                 # binary total mass
@@ -128,20 +129,25 @@ if __name__ == "__main__":
         e_squared = 1.0 - (0.5 * om * L / E)**2
 
 
+
+
         #ECCENTRICITY CALCULATION MM08
+
+        radial_cut = (r > 1.5) * (r < 5.0)
+
         m = 1
-        top = np.sum(vr * np.exp(1j * m * phi))
-        bottom = np.sum(vp)
+        top = np.sum((dA * sigma * vr * np.exp(1.j * m * phi)) * radial_cut)
+        bottom = np.sum((dA * sigma * vp) * radial_cut)
         e_m = np.absolute(top/bottom)
         print e_m
 
-        ax1.hist(
-            vx.flat,
-            weights=(dA * (r < 3) * (r > 2)).flat,
-            bins=100,
-            density=True,
-            histtype='step',
-            label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
+        # ax1.hist(
+        #     vx.flat,
+        #     weights=(dA * (r < 3) * (r > 2)).flat,
+        #     bins=100,
+        #     density=True,
+        #     histtype='step',
+        #     label=r'$\rm{{orbit}} = {:.01f}$'.format(time / 2 / np.pi))
     
 
     #ax1.set_xlim(-0.2, 1.2)
@@ -149,4 +155,4 @@ if __name__ == "__main__":
     #ax1.set_ylabel(r'$P(e^2)$')
     #ax1.set_yscale('log')
     #ax1.legend()
-    plt.show()
+    #plt.show()
