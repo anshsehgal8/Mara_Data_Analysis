@@ -25,6 +25,8 @@ if __name__ == "__main__":
     for filename in args.filenames:
         domain_radius = h5py.File(filename, 'r')['run_config']['domain_radius'][()]
         time          = h5py.File(filename, 'r')['time'][()]
+        mass_ratio    = h5py.File(filename, 'r')['run_config']['mass_ratio'][()]
+        run           = mass_ratio * 1000
 
         r     = loaders.get_dataset(filename, 'radius')
         dA    = loaders.get_dataset(filename, 'cell_area')
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         #print e_m
         #phase.append(np.angle(top/bottom))
     
-    np.savetxt(e_m,'testdata.txt')
+    np.savetxt('rvmdata%iM_J.txt' %run,e_m)
 
     
     # dphi = np.diff(phase)
