@@ -36,8 +36,13 @@ if __name__ == "__main__":
         L     = r * vp              # specific angular momentum and energy of the gas parcel
         E     = 0.5 * (vp**2 + vr**2) - GM / r
         e_squared = 1.0 - (0.5 * omega * L / E)**2
-        print e_squared
+        #print e_squared.shape
+        e = np.sqrt(e_squared)
+        i = np.where(~np.isnan(e))
         radial_cut = (r > 1.5) * (r < 5.0)
+        avg_e = (e[i] * dA[i] * sigma[i] * radial_cut[i]).sum() / (dA[i] * sigma[i] * radial_cut[i]).sum()
+        print avg_e
+        #print radial_cut.shape
 
         #plt.figure()
         #plt.hist(e_squared.flat,weights=radial_cut.flat,bins=100)
