@@ -29,6 +29,7 @@ if __name__ == "__main__":
         vx    = loaders.get_dataset(filename, 'x_velocity')
         phi   = loaders.get_dataset(filename, 'phi')
         sigma = loaders.get_dataset(filename, 'sigma')
+        dM    = sigma * dA 
 
 
         GM    = 1.0                 # binary total mass
@@ -36,12 +37,15 @@ if __name__ == "__main__":
         L     = r * vp              # specific angular momentum and energy of the gas parcel
         E     = 0.5 * (vp**2 + vr**2) - GM / r
         e_squared = 1.0 - (0.5 * omega * L / E)**2
-        #print e_squared.shape
         e = np.sqrt(e_squared)
         i = np.where(~np.isnan(e))
-        radial_cut = (r > 1.5) * (r < 5.0)
-        avg_e = (e[i] * dA[i] * sigma[i] * radial_cut[i]).sum() / (dA[i] * sigma[i] * radial_cut[i]).sum()
-        print avg_e
+
+        
+
+
+        #radial_cut = (r > 1.5) * (r < 5.0)
+        #avg_e = (e[i] * dA[i] * radial_cut[i]).sum() / (dA[i] * radial_cut[i]).sum()
+        #print avg_e
         #print radial_cut.shape
 
         #plt.figure()
