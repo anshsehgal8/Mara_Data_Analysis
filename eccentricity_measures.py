@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import pickle
 import numpy as np
 import h5py
 import loaders
-import matplotlib.pyplot as plt
 
 
 
@@ -62,7 +62,13 @@ def gas_eccentricity_diagnostics(filename):
     kd06_e_vs_r   = (e2dM_binned / dM_binned)**0.5
     kd06_e_global = (e2dM_binned[radial_cut].sum() / dM_binned[radial_cut].sum())**0.5
 
-    h5f = h5py.File(filename.replace('.h5', '.eccentricity_measures.h5'), 'w')
+    
+    path = os.getcwd()
+    stringname = '/eccentricity_measures.%04d.h5'%(counter)
+    newfilename = path + stringname
+    #print newfilename
+    newfilename = str(newfilename).zfill(4)
+    h5f = h5py.File(newfilename, 'w')
     h5f['sigma_vs_r']        = sigma_vs_r
     h5f['mm08_vs_r']         = mm08_vs_r
     h5f['mm08_e_vs_r']       = mm08_e_vs_r
@@ -81,6 +87,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs='+')
     args = parser.parse_args()
+    counter = 0
 
     for filename in args.filenames:
         gas_eccentricity_diagnostics(filename)
+        counter +=1
